@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.roller.weblogger.WebloggerException;
 import org.apache.roller.weblogger.pojos.*;
+import org.apache.roller.weblogger.ui.core.RollerContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 /**
@@ -324,6 +326,8 @@ public interface UserManager {
     boolean hasGlobalPermission(User user, String action);
 
     boolean hasGlobalPermissions(User user, List<String> actions);
+
+    public void resetPassword(User user, String newPassword);
 }
 
 

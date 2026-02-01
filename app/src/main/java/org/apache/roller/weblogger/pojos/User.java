@@ -23,9 +23,7 @@ import java.util.Date;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.roller.util.UUIDGenerator;
-import org.apache.roller.weblogger.ui.core.RollerContext;
 import org.apache.roller.weblogger.util.HTMLSanitizer;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 /**
@@ -105,16 +103,6 @@ public class User implements Serializable {
      */
     public void setPassword( String password ) {
         this.password = password;
-    }
-    
-    /**
-     * Reset this user's password, handles encryption if configured.
-     *
-     * @param newPassword The new password to be set.
-     */
-    public void resetPassword(String newPassword) {
-        PasswordEncoder encoder = RollerContext.getPasswordEncoder();
-        setPassword(encoder.encode(newPassword));
     }
 
     /**

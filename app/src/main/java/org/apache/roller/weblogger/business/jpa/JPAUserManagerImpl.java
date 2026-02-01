@@ -42,6 +42,8 @@ import org.apache.roller.weblogger.pojos.User;
 import org.apache.roller.weblogger.pojos.UserRole;
 import org.apache.roller.weblogger.pojos.Weblog;
 import org.apache.roller.weblogger.pojos.WeblogPermission;
+import org.apache.roller.weblogger.ui.core.RollerContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @com.google.inject.Singleton
@@ -640,5 +642,15 @@ public class JPAUserManagerImpl implements UserManager {
         } catch (WebloggerException ex) {
             return false;
         }
+    }
+
+    /**
+     * Reset this user's password, handles encryption if configured.
+     *
+     * @param newPassword The new password to be set.
+     */
+    public void resetPassword(User user, String newPassword) {
+        PasswordEncoder encoder = RollerContext.getPasswordEncoder();
+        user.setPassword(encoder.encode(newPassword));
     }
 }
