@@ -22,10 +22,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.roller.weblogger.WebloggerException;
-import org.apache.roller.weblogger.pojos.*;
-import org.apache.roller.weblogger.ui.core.RollerContext;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
+import org.apache.roller.weblogger.pojos.RollerPermission;
+import org.apache.roller.weblogger.pojos.User;
+import org.apache.roller.weblogger.pojos.Weblog;
+import org.apache.roller.weblogger.pojos.WeblogPermission;
 
 /**
  * Interface to user, role and permissions management.
