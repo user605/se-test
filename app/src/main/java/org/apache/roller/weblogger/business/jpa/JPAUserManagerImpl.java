@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import org.apache.roller.weblogger.business.WebloggerFactory;
 import org.apache.roller.weblogger.config.WebloggerConfig;
 import org.apache.roller.weblogger.pojos.GlobalPermission;
 import org.apache.roller.weblogger.pojos.RollerPermission;
@@ -625,6 +626,19 @@ public class JPAUserManagerImpl implements UserManager {
 
         } catch (NoResultException e) {
             throw new WebloggerException("ERROR: removing role", e);
+        }
+    }
+
+    public boolean hasGlobalPermission(User user, String action) {
+        return hasGlobalPermissions(user, Collections.singletonList(action));
+    }
+
+    public boolean hasGlobalPermissions(User user, List<String> actions) {
+        try {
+            GlobalPermission perm = new GlobalPermission(actions);
+            return WebloggerFactory.getWeblogger().getUserManager().checkPermission(perm, user);
+        } catch (WebloggerException ex) {
+            return false;
         }
     }
 }

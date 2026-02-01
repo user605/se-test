@@ -66,6 +66,7 @@ public class UserDataServlet extends HttpServlet {
         WeblogRequest weblogRequest = null;
         try {
             weblogRequest = new WeblogRequest(request);
+            Weblogger roller = WebloggerFactory.getWeblogger();
 
             // Make sure we have the correct authority
             User user = weblogRequest.getUser();
@@ -73,7 +74,7 @@ public class UserDataServlet extends HttpServlet {
                 // user not found
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
-            } else if (user.hasGlobalPermission("admin")) {
+            } else if (roller.getUserManager().hasGlobalPermission(user,"admin")) {
                 // admin
                 admin = true;
             }

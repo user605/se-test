@@ -697,9 +697,10 @@ public class JPAMediaFileManagerImpl implements MediaFileManager {
                                 List<User> users = wmgr.getWeblogUsers(weblog,
                                         true);
                                 User chosenUser = users.get(0);
+                                Weblogger roller = WebloggerFactory.getWeblogger();
                                 for (User user : users) {
                                     chosenUser = user;
-                                    if (user.hasGlobalPermission("admin")) {
+                                    if (roller.getUserManager().hasGlobalPermission(user,"admin")) {
                                         break;
                                     }
                                 }
