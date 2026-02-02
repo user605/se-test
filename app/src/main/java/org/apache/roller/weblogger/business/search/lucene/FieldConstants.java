@@ -26,6 +26,10 @@ package org.apache.roller.weblogger.business.search.lucene;
  */
 public final class FieldConstants {
 
+    private FieldConstants() {
+        throw new AssertionError("Utility class - cannot be instantiated");
+    }
+
     public static final String ANCHOR = "anchor";
     public static final String UPDATED = "updated";
     public static final String ID = "id";
