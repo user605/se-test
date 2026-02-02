@@ -1,0 +1,1484 @@
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/CategoryManager.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/CategoryManager.java
+new file mode 100644
+index 0000000..bb0dc95
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/CategoryManager.java
+@@ -0,0 +1,105 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business;
++
++import java.util.List;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogCategory;
++
++/**
++ * Interface for managing weblog categories.
++ * Extracted from WeblogEntryManager as part of the God Class refactoring.
++ * 
++ * This interface handles all category-related operations including
++ * CRUD operations and category content management.
++ */
++public interface CategoryManager {
++
++    /**
++     * Save weblog category.
++     * @param cat Category to save
++     * @throws WebloggerException if there is an error
++     */
++    void saveWeblogCategory(WeblogCategory cat) throws WebloggerException;
++
++    /**
++     * Remove weblog category.
++     * @param cat Category to remove
++     * @throws WebloggerException if there is an error
++     */
++    void removeWeblogCategory(WeblogCategory cat) throws WebloggerException;
++
++    /**
++     * Get category by id.
++     * @param id Category ID
++     * @return The category or null if not found
++     * @throws WebloggerException if there is an error
++     */
++    WeblogCategory getWeblogCategory(String id) throws WebloggerException;
++
++    /**
++     * Recategorize all entries with one category to another.
++     * @param srcCat Source category
++     * @param destCat Destination category
++     * @throws WebloggerException if there is an error
++     */
++    void moveWeblogCategoryContents(WeblogCategory srcCat, WeblogCategory destCat)
++            throws WebloggerException;
++
++    /**
++     * Get category specified by website and name.
++     * @param website Website of WeblogCategory
++     * @param categoryName Name of WeblogCategory
++     * @return The category or null if not found
++     * @throws WebloggerException if there is an error
++     */
++    WeblogCategory getWeblogCategoryByName(Weblog website, String categoryName)
++            throws WebloggerException;
++
++    /**
++     * Get WebLogCategory objects for a website.
++     * @param website The weblog
++     * @return List of categories
++     * @throws WebloggerException if there is an error
++     */
++    List<WeblogCategory> getWeblogCategories(Weblog website)
++            throws WebloggerException;
++
++    /**
++     * Check for duplicate category name.
++     * @param data Category to check
++     * @return true if duplicate exists
++     * @throws WebloggerException if there is an error
++     */
++    boolean isDuplicateWeblogCategoryName(WeblogCategory data)
++            throws WebloggerException;
++
++    /**
++     * Check if weblog category is in use.
++     * @param data Category to check
++     * @return true if category has entries
++     * @throws WebloggerException if there is an error
++     */
++    boolean isWeblogCategoryInUse(WeblogCategory data)
++            throws WebloggerException;
++
++    /**
++     * Release all resources held by manager.
++     */
++    void release();
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/CommentManager.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/CommentManager.java
+new file mode 100644
+index 0000000..a9382c2
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/CommentManager.java
+@@ -0,0 +1,113 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business;
++
++import java.util.Date;
++import java.util.List;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.pojos.CommentSearchCriteria;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogEntry;
++import org.apache.roller.weblogger.pojos.WeblogEntryComment;
++import org.apache.roller.weblogger.pojos.WeblogEntryComment.ApprovalStatus;
++
++/**
++ * Interface for managing weblog entry comments.
++ * Extracted from WeblogEntryManager as part of the God Class refactoring.
++ * 
++ * This interface handles all comment-related operations including
++ * CRUD operations, bulk operations, and queries.
++ */
++public interface CommentManager {
++
++    /**
++     * Save comment.
++     * @param comment Comment to save
++     * @throws WebloggerException if there is an error
++     */
++    void saveComment(WeblogEntryComment comment) throws WebloggerException;
++
++    /**
++     * Remove comment.
++     * @param comment Comment to remove
++     * @throws WebloggerException if there is an error
++     */
++    void removeComment(WeblogEntryComment comment) throws WebloggerException;
++
++    /**
++     * Get comment by id.
++     * @param id Comment ID
++     * @return The comment or null if not found
++     * @throws WebloggerException if there is an error
++     */
++    WeblogEntryComment getComment(String id) throws WebloggerException;
++
++    /**
++     * Generic comments query method.
++     * @param csc CommentSearchCriteria object with fields indicating search criteria
++     * @return list of comments fitting search criteria
++     * @throws WebloggerException if there is an error
++     */
++    List<WeblogEntryComment> getComments(CommentSearchCriteria csc) throws WebloggerException;
++
++    /**
++     * Deletes comments that match parameters.
++     * @param website Weblog or null for all comments on site
++     * @param entry Entry or null to include all comments
++     * @param searchString Search string for comment content
++     * @param startDate Start date or null for no restriction
++     * @param endDate End date or null for no restriction
++     * @param status Status of comment
++     * @return Number of comments deleted
++     * @throws WebloggerException if there is an error
++     */
++    int removeMatchingComments(
++            Weblog website,
++            WeblogEntry entry,
++            String searchString,
++            Date startDate,
++            Date endDate,
++            ApprovalStatus status
++    ) throws WebloggerException;
++
++    /**
++     * Get site-wide comment count.
++     * @return Total number of comments
++     * @throws WebloggerException if there is an error
++     */
++    long getCommentCount() throws WebloggerException;
++
++    /**
++     * Get weblog comment count.
++     * @param website The weblog
++     * @return Number of comments for the weblog
++     * @throws WebloggerException if there is an error
++     */
++    long getCommentCount(Weblog website) throws WebloggerException;
++
++    /**
++     * Apply comment default settings from website to all of website's entries.
++     * @param website The weblog
++     * @throws WebloggerException if there is an error
++     */
++    void applyCommentDefaultsToEntries(Weblog website) throws WebloggerException;
++
++    /**
++     * Release all resources held by manager.
++     */
++    void release();
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/HitCountManager.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/HitCountManager.java
+new file mode 100644
+index 0000000..55c2e91
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/HitCountManager.java
+@@ -0,0 +1,101 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business;
++
++import java.util.List;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogHitCount;
++
++/**
++ * Interface for managing weblog hit counts.
++ * Extracted from WeblogEntryManager as part of the God Class refactoring.
++ * 
++ * This interface handles all hit count related operations including
++ * CRUD operations, incrementing, and retrieving hot weblogs.
++ */
++public interface HitCountManager {
++
++    /**
++     * Get a HitCountData by id.
++     * @param id The HitCountData id
++     * @return The HitCountData object, or null if it wasn't found
++     * @throws WebloggerException if there is an error
++     */
++    WeblogHitCount getHitCount(String id) throws WebloggerException;
++
++    /**
++     * Get a HitCountData by weblog.
++     * @param weblog The WebsiteData that you want the hit count for
++     * @return The HitCountData object, or null if it wasn't found
++     * @throws WebloggerException if there is an error
++     */
++    WeblogHitCount getHitCountByWeblog(Weblog weblog)
++            throws WebloggerException;
++
++    /**
++     * Get HitCountData objects for the hottest weblogs.
++     * @param sinceDays Number of days in the past to consider
++     * @param offset What index in the results to begin from
++     * @param length The number of results to return
++     * @return The list of HitCountData objects ranked by hit count, descending
++     * @throws WebloggerException if there is an error
++     */
++    List<WeblogHitCount> getHotWeblogs(int sinceDays, int offset, int length)
++            throws WebloggerException;
++
++    /**
++     * Save a HitCountData object.
++     * @param hitCount The HitCountData object to save
++     * @throws WebloggerException if there is an error
++     */
++    void saveHitCount(WeblogHitCount hitCount) throws WebloggerException;
++
++    /**
++     * Remove a HitCountData object.
++     * @param hitCount The HitCountData object to remove
++     * @throws WebloggerException if there is an error
++     */
++    void removeHitCount(WeblogHitCount hitCount) throws WebloggerException;
++
++    /**
++     * Increment the hit count for a weblog by a certain amount.
++     * @param weblog The WebsiteData object to increment the count for
++     * @param amount How much to increment by
++     * @throws WebloggerException if there is an error
++     */
++    void incrementHitCount(Weblog weblog, int amount)
++            throws WebloggerException;
++
++    /**
++     * Reset the hit counts for all weblogs. This sets the counts back to 0.
++     * @throws WebloggerException if there is an error
++     */
++    void resetAllHitCounts() throws WebloggerException;
++
++    /**
++     * Reset the hit counts for a single weblog. This sets the count to 0.
++     * @param weblog The WebsiteData object to reset the count for
++     * @throws WebloggerException if there is an error
++     */
++    void resetHitCount(Weblog weblog) throws WebloggerException;
++
++    /**
++     * Release all resources held by manager.
++     */
++    void release();
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/TagManager.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/TagManager.java
+new file mode 100644
+index 0000000..20a79bb
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/TagManager.java
+@@ -0,0 +1,72 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business;
++
++import java.util.Date;
++import java.util.List;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.pojos.TagStat;
++import org.apache.roller.weblogger.pojos.Weblog;
++
++/**
++ * Interface for managing weblog entry tags.
++ * Extracted from WeblogEntryManager as part of the God Class refactoring.
++ * 
++ * This interface handles all tag-related operations including
++ * tag queries, statistics, and aggregations.
++ */
++public interface TagManager {
++
++    /**
++     * Get list of TagStat for most popular tags.
++     * @param website Weblog or null to get for all weblogs
++     * @param startDate Date or null of the most recent time a tag was used
++     * @param offset Offset into results for paging
++     * @param limit Max TagStats to return (or -1 for no limit)
++     * @return List of most popular tags
++     * @throws WebloggerException if there is an error
++     */
++    List<TagStat> getPopularTags(Weblog website, Date startDate, int offset, int limit)
++            throws WebloggerException;
++
++    /**
++     * Get list of TagStat with filtering and sorting options.
++     * @param website Weblog or null to get for all weblogs
++     * @param sortBy Sort by either 'name' or 'count' (null for name)
++     * @param startsWith Prefix for tags to be returned (null or a string of length > 0)
++     * @param offset Offset into results for paging
++     * @param limit Max TagStats to return (or -1 for no limit)
++     * @return List of tags matching the criteria
++     * @throws WebloggerException if there is an error
++     */
++    List<TagStat> getTags(Weblog website, String sortBy, String startsWith, int offset, int limit)
++            throws WebloggerException;
++
++    /**
++     * Does the specified tag combination exist? Optionally confined to a specific weblog.
++     * @param tags The List of tags to check for
++     * @param weblog The weblog to confine the check to
++     * @return True if tags exist, false otherwise
++     * @throws WebloggerException if there is an error
++     */
++    boolean getTagComboExists(List<String> tags, Weblog weblog) throws WebloggerException;
++
++    /**
++     * Release all resources held by manager.
++     */
++    void release();
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/Weblogger.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/Weblogger.java
+index 834efed..a02f4fe 100644
+--- a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/Weblogger.java
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/Weblogger.java
+@@ -128,6 +128,26 @@ public interface Weblogger {
+      */
+     FileContentManager getFileContentManager();
+ 
++    /**
++     * Get CommentManager associated with this Weblogger instance.
++     */
++    CommentManager getCommentManager();
++
++    /**
++     * Get CategoryManager associated with this Weblogger instance.
++     */
++    CategoryManager getCategoryManager();
++
++    /**
++     * Get TagManager associated with this Weblogger instance.
++     */
++    TagManager getTagManager();
++
++    /**
++     * Get HitCountManager associated with this Weblogger instance.
++     */
++    HitCountManager getHitCountManager();
++
+     /**
+      * Get the URLStrategy used to build all urls in the system.
+      */
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/WebloggerImpl.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/WebloggerImpl.java
+index 4dcb1b5..82f9542 100644
+--- a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/WebloggerImpl.java
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/WebloggerImpl.java
+@@ -72,6 +72,12 @@ public abstract class WebloggerImpl implements Weblogger {
+     private final FeedFetcher          feedFetcher;
+     private final PlanetManager        planetManager;
+     
++    // extracted managers (God Class refactoring)
++    private final CommentManager       commentManager;
++    private final CategoryManager      categoryManager;
++    private final TagManager           tagManager;
++    private final HitCountManager      hitCountManager;
++    
+     // url strategy
+     private final URLStrategy          urlStrategy;
+     private final org.apache.roller.planet.business.PlanetURLStrategy planetUrlStrategy;
+@@ -102,8 +108,12 @@ public abstract class WebloggerImpl implements Weblogger {
+         FeedFetcher          feedFetcher,
+         PlanetManager        planetManager,
+         org.apache.roller.planet.business.PlanetURLStrategy planetUrlStrategy,
+-        URLStrategy          urlStrategy) throws WebloggerException { 
+-                
++        URLStrategy          urlStrategy,
++        CommentManager       commentManager,
++        CategoryManager      categoryManager,
++        TagManager           tagManager,
++        HitCountManager      hitCountManager) throws WebloggerException {
++
+         this.autoPingManager     = autoPingManager;
+         this.bookmarkManager     = bookmarkManager;
+         this.indexManager        = indexManager;
+@@ -123,6 +133,10 @@ public abstract class WebloggerImpl implements Weblogger {
+         this.feedFetcher         = feedFetcher;
+         this.planetManager       = planetManager;
+         this.planetUrlStrategy   = planetUrlStrategy;
++        this.commentManager      = commentManager;
++        this.categoryManager     = categoryManager;
++        this.tagManager          = tagManager;
++        this.hitCountManager     = hitCountManager;
+ 
+         Properties props = new Properties();
+         try {
+@@ -302,6 +316,39 @@ public abstract class WebloggerImpl implements Weblogger {
+     }
+ 
+ 
++    /**
++     * @inheritDoc
++     */
++    @Override
++    public CommentManager getCommentManager() {
++        return commentManager;
++    }
++
++    /**
++     * @inheritDoc
++     */
++    @Override
++    public CategoryManager getCategoryManager() {
++        return categoryManager;
++    }
++
++    /**
++     * @inheritDoc
++     */
++    @Override
++    public TagManager getTagManager() {
++        return tagManager;
++    }
++
++    /**
++     * @inheritDoc
++     */
++    @Override
++    public HitCountManager getHitCountManager() {
++        return hitCountManager;
++    }
++
++
+     /**
+      * @inheritDoc
+      */
+@@ -341,6 +388,11 @@ public abstract class WebloggerImpl implements Weblogger {
+             threadManager.release();
+             userManager.release();
+             weblogManager.release();
++            // Release new managers (God Class refactoring)
++            commentManager.release();
++            categoryManager.release();
++            tagManager.release();
++            hitCountManager.release();
+         } catch(Exception e) {
+             log.error("Error calling Roller.release()", e);
+         }
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPACategoryManagerImpl.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPACategoryManagerImpl.java
+new file mode 100644
+index 0000000..2fc1130
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPACategoryManagerImpl.java
+@@ -0,0 +1,157 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business.jpa;
++
++import java.util.List;
++import jakarta.persistence.NoResultException;
++import jakarta.persistence.TypedQuery;
++
++import org.apache.commons.logging.Log;
++import org.apache.commons.logging.LogFactory;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.business.CategoryManager;
++import org.apache.roller.weblogger.business.Weblogger;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogCategory;
++import org.apache.roller.weblogger.pojos.WeblogEntry;
++
++/**
++ * JPA implementation of CategoryManager.
++ * Extracted from JPAWeblogEntryManagerImpl as part of God Class refactoring.
++ * 
++ * Handles all category-related operations including CRUD
++ * and category content management.
++ */
++@com.google.inject.Singleton
++public class JPACategoryManagerImpl implements CategoryManager {
++
++    private static final Log LOG = LogFactory.getLog(JPACategoryManagerImpl.class);
++
++    private final Weblogger roller;
++    private final JPAPersistenceStrategy strategy;
++
++    @com.google.inject.Inject
++    protected JPACategoryManagerImpl(Weblogger roller, JPAPersistenceStrategy strategy) {
++        LOG.debug("Instantiating JPA Category Manager");
++        this.roller = roller;
++        this.strategy = strategy;
++    }
++
++    @Override
++    public void saveWeblogCategory(WeblogCategory cat) throws WebloggerException {
++        boolean exists = getWeblogCategory(cat.getId()) != null;
++        if (!exists && isDuplicateWeblogCategoryName(cat)) {
++            throw new WebloggerException("Duplicate category name, cannot save category");
++        }
++
++        // update weblog last modified date
++        roller.getWeblogManager().saveWeblog(cat.getWeblog());
++        
++        this.strategy.store(cat);
++    }
++
++    @Override
++    public void removeWeblogCategory(WeblogCategory cat) throws WebloggerException {
++        if(!cat.retrieveWeblogEntries(false).isEmpty()) {
++            throw new WebloggerException("Cannot remove category with entries");
++        }
++
++        cat.getWeblog().getWeblogCategories().remove(cat);
++
++        // remove cat
++        this.strategy.remove(cat);
++
++        if(cat.equals(cat.getWeblog().getBloggerCategory())) {
++            cat.getWeblog().setBloggerCategory(null);
++            this.strategy.store(cat.getWeblog());
++        }
++
++        // update weblog last modified date
++        roller.getWeblogManager().saveWeblog(cat.getWeblog());
++    }
++
++    @Override
++    public void moveWeblogCategoryContents(WeblogCategory srcCat, WeblogCategory destCat)
++            throws WebloggerException {
++        
++        // get all entries in category and subcats
++        List<WeblogEntry> results = srcCat.retrieveWeblogEntries(false);
++        
++        // Loop through entries in src cat, assign them to dest cat
++        Weblog website = destCat.getWeblog();
++        for (WeblogEntry entry : results) {
++            entry.setCategory(destCat);
++            entry.setWebsite(website);
++            this.strategy.store(entry);
++        }
++        
++        // Update Blogger API category if applicable
++        WeblogCategory bloggerCategory = srcCat.getWeblog().getBloggerCategory();
++        if (bloggerCategory != null && bloggerCategory.getId().equals(srcCat.getId())) {
++            srcCat.getWeblog().setBloggerCategory(destCat);
++            this.strategy.store(srcCat.getWeblog());
++        }
++    }
++
++    @Override
++    public WeblogCategory getWeblogCategory(String id) throws WebloggerException {
++        return (WeblogCategory) this.strategy.load(WeblogCategory.class, id);
++    }
++
++    @Override
++    public WeblogCategory getWeblogCategoryByName(Weblog weblog, String categoryName) 
++            throws WebloggerException {
++        TypedQuery<WeblogCategory> q = strategy.getNamedQuery(
++                "WeblogCategory.getByWeblog&Name", WeblogCategory.class);
++        q.setParameter(1, weblog);
++        q.setParameter(2, categoryName);
++        try {
++            return q.getSingleResult();
++        } catch (NoResultException e) {
++            return null;
++        }
++    }
++
++    @Override
++    public List<WeblogCategory> getWeblogCategories(Weblog website) throws WebloggerException {
++        TypedQuery<WeblogCategory> q = strategy.getNamedQuery(
++                "WeblogCategory.getByWebsite", WeblogCategory.class);
++        q.setParameter(1, website);
++        return q.getResultList();
++    }
++
++    @Override
++    public boolean isDuplicateWeblogCategoryName(WeblogCategory cat) throws WebloggerException {
++        return (getWeblogCategoryByName(cat.getWeblog(), cat.getName()) != null);
++    }
++
++    @Override
++    public boolean isWeblogCategoryInUse(WeblogCategory cat) throws WebloggerException {
++        if (cat.getWeblog().getBloggerCategory().equals(cat)) {
++            return true;
++        }
++        TypedQuery<WeblogEntry> q = strategy.getNamedQuery("WeblogEntry.getByCategory", WeblogEntry.class);
++        q.setParameter(1, cat);
++        int entryCount = q.getResultList().size();
++        return entryCount > 0;
++    }
++
++    @Override
++    public void release() {
++        // No resources to release
++    }
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPACommentManagerImpl.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPACommentManagerImpl.java
+new file mode 100644
+index 0000000..a3e525a
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPACommentManagerImpl.java
+@@ -0,0 +1,211 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business.jpa;
++
++import java.sql.Timestamp;
++import java.util.ArrayList;
++import java.util.Date;
++import java.util.List;
++import jakarta.persistence.TypedQuery;
++
++import org.apache.commons.logging.Log;
++import org.apache.commons.logging.LogFactory;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.business.CommentManager;
++import org.apache.roller.weblogger.business.Weblogger;
++import org.apache.roller.weblogger.pojos.CommentSearchCriteria;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogEntry;
++import org.apache.roller.weblogger.pojos.WeblogEntryComment;
++import org.apache.roller.weblogger.pojos.WeblogEntryComment.ApprovalStatus;
++
++/**
++ * JPA implementation of CommentManager.
++ * Extracted from JPAWeblogEntryManagerImpl as part of God Class refactoring.
++ * 
++ * Handles all comment-related operations including CRUD,
++ * bulk operations, and queries.
++ */
++@com.google.inject.Singleton
++public class JPACommentManagerImpl implements CommentManager {
++
++    private static final Log LOG = LogFactory.getLog(JPACommentManagerImpl.class);
++
++    private final Weblogger roller;
++    private final JPAPersistenceStrategy strategy;
++
++    @com.google.inject.Inject
++    protected JPACommentManagerImpl(Weblogger roller, JPAPersistenceStrategy strategy) {
++        LOG.debug("Instantiating JPA Comment Manager");
++        this.roller = roller;
++        this.strategy = strategy;
++    }
++
++    @Override
++    public void saveComment(WeblogEntryComment comment) throws WebloggerException {
++        this.strategy.store(comment);
++        
++        // update weblog last modified date
++        roller.getWeblogManager().saveWeblog(comment.getWeblogEntry().getWebsite());
++    }
++
++    @Override
++    public void removeComment(WeblogEntryComment comment) throws WebloggerException {
++        this.strategy.remove(comment);
++        
++        // update weblog last modified date
++        roller.getWeblogManager().saveWeblog(comment.getWeblogEntry().getWebsite());
++    }
++
++    @Override
++    public WeblogEntryComment getComment(String id) throws WebloggerException {
++        return (WeblogEntryComment) this.strategy.load(WeblogEntryComment.class, id);
++    }
++
++    @Override
++    public List<WeblogEntryComment> getComments(CommentSearchCriteria csc) throws WebloggerException {
++        List<Object> params = new ArrayList<>();
++        int size = 0;
++        StringBuilder queryString = new StringBuilder();
++        queryString.append("SELECT c FROM WeblogEntryComment c ");
++        
++        StringBuilder whereClause = new StringBuilder();
++        if (csc.getEntry() != null) {
++            params.add(size++, csc.getEntry());
++            whereClause.append("c.weblogEntry = ?").append(size);
++        } else if (csc.getWeblog() != null) {
++            params.add(size++, csc.getWeblog());
++            whereClause.append("c.weblogEntry.website = ?").append(size);
++        }
++        
++        if (csc.getSearchText() != null) {
++            params.add(size++, "%" + csc.getSearchText().toUpperCase() + "%");
++            appendConjuctionToWhereclause(whereClause, "upper(c.content) LIKE ?").append(size);
++        }
++        
++        if (csc.getStartDate() != null) {
++            Timestamp start = new Timestamp(csc.getStartDate().getTime());
++            params.add(size++, start);
++            appendConjuctionToWhereclause(whereClause, "c.postTime >= ?").append(size);
++        }
++        
++        if (csc.getEndDate() != null) {
++            Timestamp end = new Timestamp(csc.getEndDate().getTime());
++            params.add(size++, end);
++            appendConjuctionToWhereclause(whereClause, "c.postTime <= ?").append(size);
++        }
++        
++        if (csc.getStatus() != null) {
++            params.add(size++, csc.getStatus());
++            appendConjuctionToWhereclause(whereClause, "c.status = ?").append(size);
++        }
++        
++        if(whereClause.length() != 0) {
++            queryString.append(" WHERE ").append(whereClause);
++        }
++        if (csc.isReverseChrono()) {
++            queryString.append(" ORDER BY c.postTime DESC");
++        } else {
++            queryString.append(" ORDER BY c.postTime ASC");
++        }
++        
++        TypedQuery<WeblogEntryComment> query = strategy.getDynamicQuery(queryString.toString(), WeblogEntryComment.class);
++        setFirstMax( query, csc.getOffset(), csc.getMaxResults());
++        for (int i=0; i<params.size(); i++) {
++            query.setParameter(i+1, params.get(i));
++        }
++        return query.getResultList();
++    }
++
++    @Override
++    public int removeMatchingComments(
++            Weblog weblog,
++            WeblogEntry entry,
++            String searchString,
++            Date startDate,
++            Date endDate,
++            ApprovalStatus status) throws WebloggerException {
++        
++        CommentSearchCriteria csc = new CommentSearchCriteria();
++        csc.setWeblog(weblog);
++        csc.setEntry(entry);
++        csc.setSearchText(searchString);
++        csc.setStartDate(startDate);
++        csc.setEndDate(endDate);
++        csc.setStatus(status);
++
++        List<WeblogEntryComment> comments = getComments(csc);
++        int count = 0;
++        for (WeblogEntryComment comment : comments) {
++            removeComment(comment);
++            count++;
++        }
++        return count;
++    }
++
++    @Override
++    public long getCommentCount() throws WebloggerException {
++        TypedQuery<Long> q = strategy.getNamedQuery(
++                "WeblogEntryComment.getCountAllDistinctByStatus", Long.class);
++        q.setParameter(1, ApprovalStatus.APPROVED);
++        return q.getResultList().get(0);
++    }
++
++    @Override
++    public long getCommentCount(Weblog website) throws WebloggerException {
++        TypedQuery<Long> q = strategy.getNamedQuery(
++                "WeblogEntryComment.getCountDistinctByWebsite&Status", Long.class);
++        q.setParameter(1, website);
++        q.setParameter(2, ApprovalStatus.APPROVED);
++        return q.getResultList().get(0);
++    }
++
++    @Override
++    public void applyCommentDefaultsToEntries(Weblog website) throws WebloggerException {
++        if (LOG.isDebugEnabled()) {
++            LOG.debug("applyCommentDefaults");
++        }
++        
++        jakarta.persistence.Query q = strategy.getNamedUpdate(
++                "WeblogEntry.updateAllowComments&CommentDaysByWebsite");
++        q.setParameter(1, website.getDefaultAllowComments());
++        q.setParameter(2, website.getDefaultCommentDays());
++        q.setParameter(3, website);
++        q.executeUpdate();
++    }
++
++    @Override
++    public void release() {
++        // No resources to release
++    }
++
++    private static void setFirstMax(jakarta.persistence.Query query, int offset, int length) {
++        if (offset != 0) {
++            query.setFirstResult(offset);
++        }
++        if (length != -1) {
++            query.setMaxResults(length);
++        }
++    }
++
++    private static StringBuilder appendConjuctionToWhereclause(StringBuilder whereClause, String expression) {
++        if (whereClause.length() != 0 && expression.length() != 0) {
++            whereClause.append(" AND ");
++        }
++        return whereClause.append(expression);
++    }
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAHitCountManagerImpl.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAHitCountManagerImpl.java
+new file mode 100644
+index 0000000..d2a3991
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAHitCountManagerImpl.java
+@@ -0,0 +1,169 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business.jpa;
++
++import java.util.Calendar;
++import java.util.Date;
++import java.util.List;
++import jakarta.persistence.NoResultException;
++import jakarta.persistence.Query;
++import jakarta.persistence.TypedQuery;
++
++import org.apache.commons.logging.Log;
++import org.apache.commons.logging.LogFactory;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.business.HitCountManager;
++import org.apache.roller.weblogger.business.Weblogger;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogHitCount;
++
++/**
++ * JPA implementation of HitCountManager.
++ * Extracted from JPAWeblogEntryManagerImpl as part of God Class refactoring.
++ * 
++ * Handles all hit count related operations including
++ * CRUD operations, incrementing, and retrieving hot weblogs.
++ */
++@com.google.inject.Singleton
++public class JPAHitCountManagerImpl implements HitCountManager {
++
++    private static final Log LOG = LogFactory.getLog(JPAHitCountManagerImpl.class);
++
++    private final Weblogger roller;
++    private final JPAPersistenceStrategy strategy;
++
++    @com.google.inject.Inject
++    protected JPAHitCountManagerImpl(Weblogger roller, JPAPersistenceStrategy strategy) {
++        LOG.debug("Instantiating JPA Hit Count Manager");
++        this.roller = roller;
++        this.strategy = strategy;
++    }
++
++    @Override
++    public WeblogHitCount getHitCount(String id) throws WebloggerException {
++        return (WeblogHitCount) strategy.load(WeblogHitCount.class, id);
++    }
++
++    @Override
++    public WeblogHitCount getHitCountByWeblog(Weblog weblog) throws WebloggerException {
++        TypedQuery<WeblogHitCount> q = strategy.getNamedQuery("WeblogHitCount.getByWeblog", WeblogHitCount.class);
++        q.setParameter(1, weblog);
++        try {
++            return q.getSingleResult();
++        } catch (NoResultException e) {
++            return null;
++        }
++    }
++
++    @Override
++    public List<WeblogHitCount> getHotWeblogs(int sinceDays, int offset, int length)
++            throws WebloggerException {
++        
++        Date startDate = getStartDateNow(sinceDays);
++
++        TypedQuery<WeblogHitCount> query;
++        query = strategy.getNamedQuery(
++                "WeblogHitCount.getByWeblogEnabledTrueAndActiveTrue&DailyHitsGreaterThenZero&WeblogLastModifiedGreaterOrderByDailyHitsDesc",
++                WeblogHitCount.class);
++        query.setParameter(1, startDate);
++        setFirstMax(query, offset, length);
++        return query.getResultList();
++    }
++
++    @Override
++    public void saveHitCount(WeblogHitCount hitCount) throws WebloggerException {
++        this.strategy.store(hitCount);
++    }
++
++    @Override
++    public void removeHitCount(WeblogHitCount hitCount) throws WebloggerException {
++        this.strategy.remove(hitCount);
++    }
++
++    @Override
++    public void incrementHitCount(Weblog weblog, int amount)
++            throws WebloggerException {
++        
++        if(amount == 0) {
++            throw new WebloggerException("Tag increment amount cannot be zero.");
++        }
++        
++        if(weblog == null) {
++            throw new WebloggerException("Website cannot be NULL.");
++        }
++
++        TypedQuery<WeblogHitCount> q = strategy.getNamedQuery("WeblogHitCount.getByWeblog", WeblogHitCount.class);
++        q.setParameter(1, weblog);
++        WeblogHitCount hitCount;
++        try {
++            hitCount = q.getSingleResult();
++        } catch (NoResultException e) {
++            hitCount = null;
++        }
++        
++        if(hitCount == null && amount > 0) {
++            hitCount = new WeblogHitCount();
++            hitCount.setWeblog(weblog);
++            hitCount.setDailyHits(amount);
++            strategy.store(hitCount);
++        } else if(hitCount != null) {
++            hitCount.setDailyHits(hitCount.getDailyHits() + amount);
++            strategy.store(hitCount);
++        }
++    }
++
++    @Override
++    public void resetAllHitCounts() throws WebloggerException {
++        Query q = strategy.getNamedUpdate("WeblogHitCount.updateDailyHitCountZero");
++        q.executeUpdate();
++    }
++
++    @Override
++    public void resetHitCount(Weblog weblog) throws WebloggerException {
++        TypedQuery<WeblogHitCount> q = strategy.getNamedQuery("WeblogHitCount.getByWeblog", WeblogHitCount.class);
++        q.setParameter(1, weblog);
++        WeblogHitCount hitCount;
++        try {
++            hitCount = q.getSingleResult();
++            hitCount.setDailyHits(0);
++            strategy.store(hitCount);
++        } catch (NoResultException e) {
++            // ignore: no hit count for weblog
++        }
++    }
++
++    @Override
++    public void release() {
++        // No resources to release
++    }
++
++    private static void setFirstMax(Query query, int offset, int length) {
++        if (offset != 0) {
++            query.setFirstResult(offset);
++        }
++        if (length != -1) {
++            query.setMaxResults(length);
++        }
++    }
++
++    private static Date getStartDateNow(int sinceDays) {
++        Calendar cal = Calendar.getInstance();
++        cal.setTime(new Date());
++        cal.add(Calendar.DATE, -1 * sinceDays);
++        return cal.getTime();
++    }
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPATagManagerImpl.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPATagManagerImpl.java
+new file mode 100644
+index 0000000..ad649f3
+--- /dev/null
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPATagManagerImpl.java
+@@ -0,0 +1,305 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. The ASF licenses this file to You
++ * under the Apache License, Version 2.0 (the "License"); you may not
++ * use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package org.apache.roller.weblogger.business.jpa;
++
++import java.sql.Timestamp;
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.Comparator;
++import java.util.Date;
++import java.util.List;
++import jakarta.persistence.NoResultException;
++import jakarta.persistence.Query;
++import jakarta.persistence.TypedQuery;
++
++import org.apache.commons.logging.Log;
++import org.apache.commons.logging.LogFactory;
++import org.apache.roller.weblogger.WebloggerException;
++import org.apache.roller.weblogger.business.TagManager;
++import org.apache.roller.weblogger.business.Weblogger;
++import org.apache.roller.weblogger.pojos.TagStat;
++import org.apache.roller.weblogger.pojos.TagStatComparator;
++import org.apache.roller.weblogger.pojos.TagStatCountComparator;
++import org.apache.roller.weblogger.pojos.Weblog;
++import org.apache.roller.weblogger.pojos.WeblogEntryTagAggregate;
++
++/**
++ * JPA implementation of TagManager.
++ * Extracted from JPAWeblogEntryManagerImpl as part of God Class refactoring.
++ * 
++ * Handles all tag-related operations including tag queries,
++ * statistics, and aggregations.
++ */
++@com.google.inject.Singleton
++public class JPATagManagerImpl implements TagManager {
++
++    private static final Log LOG = LogFactory.getLog(JPATagManagerImpl.class);
++
++    private final Weblogger roller;
++    private final JPAPersistenceStrategy strategy;
++
++    private static final Comparator<TagStat> TAG_STAT_NAME_COMPARATOR = new TagStatComparator();
++    private static final Comparator<TagStat> TAG_STAT_COUNT_REVERSE_COMPARATOR =
++            Collections.reverseOrder(TagStatCountComparator.getInstance());
++
++    @com.google.inject.Inject
++    protected JPATagManagerImpl(Weblogger roller, JPAPersistenceStrategy strategy) {
++        LOG.debug("Instantiating JPA Tag Manager");
++        this.roller = roller;
++        this.strategy = strategy;
++    }
++
++    @Override
++    public List<TagStat> getPopularTags(Weblog website, Date startDate, int offset, int limit)
++            throws WebloggerException {
++        TypedQuery<TagStat> query;
++        List<TagStat> queryResults;
++        
++        if (website != null) {
++            if (startDate != null) {
++                Timestamp start = new Timestamp(startDate.getTime());
++                query = strategy.getNamedQuery(
++                        "WeblogEntryTagAggregate.getPopularTagsByWebsite&StartDate", TagStat.class);
++                query.setParameter(1, website);
++                query.setParameter(2, start);
++            } else {
++                query = strategy.getNamedQuery(
++                        "WeblogEntryTagAggregate.getPopularTagsByWebsite", TagStat.class);
++                query.setParameter(1, website);
++            }
++        } else {
++            if (startDate != null) {
++                Timestamp start = new Timestamp(startDate.getTime());
++                query = strategy.getNamedQuery(
++                        "WeblogEntryTagAggregate.getPopularTagsByWebsiteNull&StartDate", TagStat.class);
++                query.setParameter(1, start);
++            } else {
++                query = strategy.getNamedQuery(
++                        "WeblogEntryTagAggregate.getPopularTagsByWebsiteNull", TagStat.class);
++            }
++        }
++        setFirstMax(query, offset, limit);
++        queryResults = query.getResultList();
++        
++        double min = Integer.MAX_VALUE;
++        double max = Integer.MIN_VALUE;
++        
++        List<TagStat> results = new ArrayList<>(limit >= 0 ? limit : 25);
++        
++        if (queryResults != null) {
++            for (Object obj : queryResults) {
++                Object[] row = (Object[]) obj;
++                TagStat t = new TagStat();
++                t.setName((String) row[0]);
++                t.setCount(((Number) row[1]).intValue());
++
++                min = Math.min(min, t.getCount());
++                max = Math.max(max, t.getCount());
++                results.add(t);
++            }
++        }
++
++        min = Math.log(1+min);
++        max = Math.log(1+max);
++        
++        double range = Math.max(.01, max - min) * 1.0001;
++        
++        for (TagStat t : results) {
++            t.setIntensity((int) (1 + Math.floor(5 * (Math.log(1+t.getCount()) - min) / range)));
++        }
++
++        // sort results by name, because query had to sort by total
++        results.sort(TAG_STAT_NAME_COMPARATOR);
++        
++        return results;
++    }
++
++    @Override
++    public List<TagStat> getTags(Weblog website, String sortBy, String startsWith, 
++            int offset, int limit) throws WebloggerException {
++        Query query;
++        List<?> queryResults;
++        boolean sortByName = sortBy == null || !sortBy.equals("count");
++                
++        List<Object> params = new ArrayList<>();
++        int size = 0;
++        StringBuilder queryString = new StringBuilder();
++        queryString.append("SELECT w.name, SUM(w.total) FROM WeblogEntryTagAggregate w WHERE ");
++                
++        if (website != null) {
++            params.add(size++, website.getId());
++            queryString.append(" w.weblog.id = ?").append(size);
++        } else {
++            queryString.append(" w.weblog IS NULL"); 
++        }
++                       
++        if (startsWith != null && startsWith.length() > 0) {
++            params.add(size++, startsWith + '%');
++            queryString.append(" AND w.name LIKE ?").append(size);
++        }
++                    
++        if (sortBy != null && sortBy.equals("count")) {
++            sortBy = "w.total DESC";
++        } else {
++            sortBy = "w.name";
++        }
++        queryString.append(" GROUP BY w.name, w.total ORDER BY ").append(sortBy);
++
++        query = strategy.getDynamicQuery(queryString.toString());
++        for (int i=0; i<params.size(); i++) {
++            query.setParameter(i+1, params.get(i));
++        }
++        setFirstMax(query, offset, limit);
++        queryResults = query.getResultList();
++        
++        List<TagStat> results = new ArrayList<>();
++        if (queryResults != null) {
++            for (Object obj : queryResults) {
++                Object[] row = (Object[]) obj;
++                TagStat ce = new TagStat();
++                ce.setName((String) row[0]);
++                ce.setCount(((Long) row[1]).intValue());
++                results.add(ce);
++            }
++        }
++
++        if (sortByName) {
++            results.sort(TAG_STAT_NAME_COMPARATOR);
++        } else {
++            results.sort(TAG_STAT_COUNT_REVERSE_COMPARATOR);
++        }
++        
++        return results;
++    }
++
++    @Override
++    public boolean getTagComboExists(List<String> tags, Weblog weblog) throws WebloggerException {
++        if (tags == null || tags.isEmpty()) {
++            return false;
++        }
++        
++        StringBuilder queryString = new StringBuilder();
++        queryString.append("SELECT DISTINCT w.name ");
++        queryString.append("FROM WeblogEntryTagAggregate w WHERE w.name IN (");
++        List<Object> params = new ArrayList<>(tags.size() + 1);
++        final String paramSeparator = ", ";
++        int i;
++        for (i=0; i < tags.size(); i++) {
++            queryString.append('?').append(i+1).append(paramSeparator);
++            params.add(tags.get(i));
++        }
++        
++        queryString.delete(queryString.length() - paramSeparator.length(),
++                queryString.length());
++        queryString.append(')');
++        
++        if(weblog != null) {
++            queryString.append(" AND w.weblog = ?").append(i+1);
++            params.add(weblog);
++        } else {
++            queryString.append(" AND w.weblog IS NULL");
++        }
++        
++        TypedQuery<String> q = strategy.getDynamicQuery(queryString.toString(), String.class);
++        for (int j=0; j<params.size(); j++) {
++            q.setParameter(j+1, params.get(j));
++        }
++        
++        List<String> results = q.getResultList();
++        return (results != null && results.size() == tags.size());
++    }
++
++    /**
++     * Updates tag aggregate counts. Called internally when entries are saved/deleted.
++     * 
++     * @param name The tag name
++     * @param website The website to update
++     * @param amount The amount to increment (positive or negative)
++     * @throws WebloggerException if there is an error
++     */
++    public void updateTagCount(String name, Weblog website, int amount)
++            throws WebloggerException {
++        if (amount == 0) {
++            throw new WebloggerException("Tag increment amount cannot be zero.");
++        }
++        
++        if (website == null) {
++            throw new WebloggerException("Website cannot be NULL.");
++        }
++        
++        TypedQuery<WeblogEntryTagAggregate> weblogQuery = strategy.getNamedQuery(
++                "WeblogEntryTagAggregate.getByName&WebsiteOrderByLastUsedDesc", WeblogEntryTagAggregate.class);
++        weblogQuery.setParameter(1, name);
++        weblogQuery.setParameter(2, website);
++        WeblogEntryTagAggregate weblogTagData;
++        try {
++            weblogTagData = weblogQuery.getSingleResult();
++        } catch (NoResultException e) {
++            weblogTagData = null;
++        }
++
++        TypedQuery<WeblogEntryTagAggregate> siteQuery = strategy.getNamedQuery(
++                "WeblogEntryTagAggregate.getByName&WebsiteNullOrderByLastUsedDesc", WeblogEntryTagAggregate.class);
++        siteQuery.setParameter(1, name);
++        WeblogEntryTagAggregate siteTagData;
++        try {
++            siteTagData = siteQuery.getSingleResult();
++        } catch (NoResultException e) {
++            siteTagData = null;
++        }
++        Timestamp lastUsed = new Timestamp((new Date()).getTime());
++        
++        if (weblogTagData == null && amount > 0) {
++            weblogTagData = new WeblogEntryTagAggregate(null, website, name, amount);
++            weblogTagData.setLastUsed(lastUsed);
++            strategy.store(weblogTagData);
++        } else if (weblogTagData != null) {
++            weblogTagData.setTotal(weblogTagData.getTotal() + amount);
++            weblogTagData.setLastUsed(lastUsed);
++            strategy.store(weblogTagData);
++        }
++        
++        if (siteTagData == null && amount > 0) {
++            siteTagData = new WeblogEntryTagAggregate(null, null, name, amount);
++            siteTagData.setLastUsed(lastUsed);
++            strategy.store(siteTagData);
++        } else if (siteTagData != null) {
++            siteTagData.setTotal(siteTagData.getTotal() + amount);
++            siteTagData.setLastUsed(lastUsed);
++            strategy.store(siteTagData);
++        }
++        
++        Query removeq = strategy.getNamedUpdate(
++                "WeblogEntryTagAggregate.removeByTotalLessEqual");
++        removeq.setParameter(1, 0);
++        removeq.executeUpdate();
++    }
++
++    @Override
++    public void release() {
++        // No resources to release
++    }
++
++    private static void setFirstMax(Query query, int offset, int length) {
++        if (offset != 0) {
++            query.setFirstResult(offset);
++        }
++        if (length != -1) {
++            query.setMaxResults(length);
++        }
++    }
++}
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerImpl.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerImpl.java
+index fe74ea0..1c3f453 100644
+--- a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerImpl.java
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerImpl.java
+@@ -62,11 +62,15 @@ public class JPAWebloggerImpl extends WebloggerImpl {
+         WeblogManager        weblogManager,
+         WeblogEntryManager   weblogEntryManager,
+         OAuthManager         oauthManager,
+-		FeedFetcher          feedFetcher,
++        FeedFetcher          feedFetcher,
+         PlanetManager        planetManager,
+         PlanetURLStrategy    planetUrlStrategy,
+-        URLStrategy          urlStrategy) throws WebloggerException {
+-        
++        URLStrategy          urlStrategy,
++        CommentManager       commentManager,
++        CategoryManager      categoryManager,
++        TagManager           tagManager,
++        HitCountManager      hitCountManager) throws WebloggerException {
++
+         super(
+             autoPingManager,
+             bookmarkManager,
+@@ -86,8 +90,12 @@ public class JPAWebloggerImpl extends WebloggerImpl {
+             feedFetcher,
+             planetManager,
+             planetUrlStrategy,
+-            urlStrategy);
+-        
++            urlStrategy,
++            commentManager,
++            categoryManager,
++            tagManager,
++            hitCountManager);
++
+         this.strategy = strategy;
+     }
+     
+diff --git a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerModule.java b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerModule.java
+index d9e1894..b2d2dea 100644
+--- a/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerModule.java
++++ b/roller_pub/app/src/main/java/org/apache/roller/weblogger/business/jpa/JPAWebloggerModule.java
+@@ -30,12 +30,16 @@ import org.apache.roller.planet.business.fetcher.FeedFetcher;
+ import org.apache.roller.planet.business.jpa.JPAPlanetImpl;
+ import org.apache.roller.planet.business.jpa.JPAPlanetManagerImpl;
+ import org.apache.roller.weblogger.business.BookmarkManager;
++import org.apache.roller.weblogger.business.CategoryManager;
++import org.apache.roller.weblogger.business.CommentManager;
+ import org.apache.roller.weblogger.business.FileContentManager;
+ import org.apache.roller.weblogger.business.FileContentManagerImpl;
++import org.apache.roller.weblogger.business.HitCountManager;
+ import org.apache.roller.weblogger.business.MediaFileManager;
+ import org.apache.roller.weblogger.business.MultiWeblogURLStrategy;
+ import org.apache.roller.weblogger.business.OAuthManager;
+ import org.apache.roller.weblogger.business.PropertiesManager;
++import org.apache.roller.weblogger.business.TagManager;
+ import org.apache.roller.weblogger.business.URLStrategy;
+ import org.apache.roller.weblogger.business.Weblogger;
+ import org.apache.roller.weblogger.business.UserManager;
+@@ -82,9 +86,15 @@ public class JPAWebloggerModule implements Module {
+         binder.bind(MediaFileManager.class).to(    JPAMediaFileManagerImpl.class);
+         binder.bind(FileContentManager.class).to(  FileContentManagerImpl.class);
+         binder.bind(IndexManager.class).to(        LuceneIndexManager.class);
+-        binder.bind(PluginManager.class).to(       PluginManagerImpl.class);    
++        binder.bind(PluginManager.class).to(       PluginManagerImpl.class);
+         binder.bind(ThemeManager.class).to(        ThemeManagerImpl.class);
+-        
++
++        // New managers (God Class refactoring)
++        binder.bind(CommentManager.class).to(      JPACommentManagerImpl.class);
++        binder.bind(CategoryManager.class).to(     JPACategoryManagerImpl.class);
++        binder.bind(TagManager.class).to(          JPATagManagerImpl.class);
++        binder.bind(HitCountManager.class).to(     JPAHitCountManagerImpl.class);
++
+         binder.bind(URLStrategy.class).to(         MultiWeblogURLStrategy.class);
+         binder.bind(PlanetURLStrategy.class).to(   MultiPlanetURLStrategy.class);
+ 		binder.bind(Planet.class).to(              JPAPlanetImpl.class);

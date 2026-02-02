@@ -129,6 +129,26 @@ public interface Weblogger {
     FileContentManager getFileContentManager();
 
     /**
+     * Get CommentManager associated with this Weblogger instance.
+     */
+    CommentManager getCommentManager();
+
+    /**
+     * Get CategoryManager associated with this Weblogger instance.
+     */
+    CategoryManager getCategoryManager();
+
+    /**
+     * Get TagManager associated with this Weblogger instance.
+     */
+    TagManager getTagManager();
+
+    /**
+     * Get HitCountManager associated with this Weblogger instance.
+     */
+    HitCountManager getHitCountManager();
+
+    /**
      * Get the URLStrategy used to build all urls in the system.
      */
     URLStrategy getUrlStrategy();
