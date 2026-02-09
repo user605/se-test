@@ -27,6 +27,7 @@ import org.apache.roller.weblogger.pojos.WeblogEntry;
 import org.apache.roller.weblogger.pojos.WeblogEntry.PubStatus;
 import org.apache.roller.weblogger.pojos.WeblogEntryTagComparator;
 import org.apache.roller.weblogger.util.HTMLSanitizer;
+import org.apache.roller.weblogger.util.WeblogEntryTransformer;
 
 
 /**
@@ -262,22 +263,22 @@ public final class WeblogEntryWrapper {
     
     
     public String getTransformedText() {
-        return this.pojo.getTransformedText();
+        return WeblogEntryTransformer.getTransformedText(this.pojo);
     }
     
     
     public String getTransformedSummary() {
-        return this.pojo.getTransformedSummary();
+        return WeblogEntryTransformer.getTransformedSummary(this.pojo);
     }
     
     
     public String displayContent(String readMoreLink) {
-        return this.pojo.displayContent(readMoreLink);
+        return WeblogEntryTransformer.displayContent(this.pojo, readMoreLink);
     }
     
     
     public String getDisplayContent() {
-        return this.pojo.getDisplayContent();
+        return WeblogEntryTransformer.displayContent(this.pojo, null);
     }
 
 	public String getSearchDescription() {

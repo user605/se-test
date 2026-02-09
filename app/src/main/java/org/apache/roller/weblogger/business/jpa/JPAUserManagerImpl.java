@@ -41,6 +41,7 @@ import org.apache.roller.weblogger.pojos.RollerPermission;
 import org.apache.roller.weblogger.pojos.User;
 import org.apache.roller.weblogger.pojos.UserRole;
 import org.apache.roller.weblogger.pojos.Weblog;
+import org.apache.roller.weblogger.pojos.WeblogEntry;
 import org.apache.roller.weblogger.pojos.WeblogPermission;
 import org.apache.roller.weblogger.ui.core.RollerContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -652,5 +653,24 @@ public class JPAUserManagerImpl implements UserManager {
     public void resetPassword(User user, String newPassword) {
         PasswordEncoder encoder = RollerContext.getPasswordEncoder();
         user.setPassword(encoder.encode(newPassword));
+    }
+
+    @Override
+    public boolean canEdit(WeblogEntry entry, User user) throws WebloggerException {
+        // global admins can hack whatever they want
+        GlobalPermission adminPerm = new GlobalPermission(Collections.singletonList(GlobalPermission.ADMIN));
+        if (checkPermission(adminPerm, user)) {
+            return true;
+        }
+
+        WeblogPermission perm = getWeblogPermission(entry.getWebsite(), user);
+        if (perm == null) {
+            return false;
+        }
+
+        boolean author = perm.hasAction(WeblogPermission.POST) || perm.hasAction(WeblogPermission.ADMIN);
+        boolean limited = !author && perm.hasAction(WeblogPermission.EDIT_DRAFT);
+
+        return author || (limited && (entry.getStatus() == WeblogEntry.PubStatus.DRAFT || entry.getStatus() == WeblogEntry.PubStatus.PENDING));
     }
 }
