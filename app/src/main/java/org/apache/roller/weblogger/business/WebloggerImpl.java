@@ -72,6 +72,12 @@ public abstract class WebloggerImpl implements Weblogger {
     private final FeedFetcher          feedFetcher;
     private final PlanetManager        planetManager;
     
+    // extracted managers (God Class refactoring)
+    private final CommentManager       commentManager;
+    private final CategoryManager      categoryManager;
+    private final TagManager           tagManager;
+    private final HitCountManager      hitCountManager;
+    
     // url strategy
     private final URLStrategy          urlStrategy;
     private final org.apache.roller.planet.business.PlanetURLStrategy planetUrlStrategy;
@@ -102,8 +108,12 @@ public abstract class WebloggerImpl implements Weblogger {
         FeedFetcher          feedFetcher,
         PlanetManager        planetManager,
         org.apache.roller.planet.business.PlanetURLStrategy planetUrlStrategy,
-        URLStrategy          urlStrategy) throws WebloggerException { 
-                
+        URLStrategy          urlStrategy,
+        CommentManager       commentManager,
+        CategoryManager      categoryManager,
+        TagManager           tagManager,
+        HitCountManager      hitCountManager) throws WebloggerException {
+
         this.autoPingManager     = autoPingManager;
         this.bookmarkManager     = bookmarkManager;
         this.indexManager        = indexManager;
@@ -123,6 +133,10 @@ public abstract class WebloggerImpl implements Weblogger {
         this.feedFetcher         = feedFetcher;
         this.planetManager       = planetManager;
         this.planetUrlStrategy   = planetUrlStrategy;
+        this.commentManager      = commentManager;
+        this.categoryManager     = categoryManager;
+        this.tagManager          = tagManager;
+        this.hitCountManager     = hitCountManager;
 
         Properties props = new Properties();
         try {
@@ -306,6 +320,39 @@ public abstract class WebloggerImpl implements Weblogger {
      * @inheritDoc
      */
     @Override
+    public CommentManager getCommentManager() {
+        return commentManager;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public CategoryManager getCategoryManager() {
+        return categoryManager;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public TagManager getTagManager() {
+        return tagManager;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public HitCountManager getHitCountManager() {
+        return hitCountManager;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    @Override
     public URLStrategy getUrlStrategy() {
         return urlStrategy;
     }
@@ -341,6 +388,11 @@ public abstract class WebloggerImpl implements Weblogger {
             threadManager.release();
             userManager.release();
             weblogManager.release();
+            // Release new managers (God Class refactoring)
+            commentManager.release();
+            categoryManager.release();
+            tagManager.release();
+            hitCountManager.release();
         } catch(Exception e) {
             log.error("Error calling Roller.release()", e);
         }

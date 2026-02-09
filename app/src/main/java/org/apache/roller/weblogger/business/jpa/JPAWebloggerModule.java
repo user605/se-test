@@ -30,12 +30,16 @@ import org.apache.roller.planet.business.fetcher.FeedFetcher;
 import org.apache.roller.planet.business.jpa.JPAPlanetImpl;
 import org.apache.roller.planet.business.jpa.JPAPlanetManagerImpl;
 import org.apache.roller.weblogger.business.BookmarkManager;
+import org.apache.roller.weblogger.business.CategoryManager;
+import org.apache.roller.weblogger.business.CommentManager;
 import org.apache.roller.weblogger.business.FileContentManager;
 import org.apache.roller.weblogger.business.FileContentManagerImpl;
+import org.apache.roller.weblogger.business.HitCountManager;
 import org.apache.roller.weblogger.business.MediaFileManager;
 import org.apache.roller.weblogger.business.MultiWeblogURLStrategy;
 import org.apache.roller.weblogger.business.OAuthManager;
 import org.apache.roller.weblogger.business.PropertiesManager;
+import org.apache.roller.weblogger.business.TagManager;
 import org.apache.roller.weblogger.business.URLStrategy;
 import org.apache.roller.weblogger.business.Weblogger;
 import org.apache.roller.weblogger.business.UserManager;
@@ -82,9 +86,15 @@ public class JPAWebloggerModule implements Module {
         binder.bind(MediaFileManager.class).to(    JPAMediaFileManagerImpl.class);
         binder.bind(FileContentManager.class).to(  FileContentManagerImpl.class);
         binder.bind(IndexManager.class).to(        LuceneIndexManager.class);
-        binder.bind(PluginManager.class).to(       PluginManagerImpl.class);    
+        binder.bind(PluginManager.class).to(       PluginManagerImpl.class);
         binder.bind(ThemeManager.class).to(        ThemeManagerImpl.class);
-        
+
+        // New managers (God Class refactoring)
+        binder.bind(CommentManager.class).to(      JPACommentManagerImpl.class);
+        binder.bind(CategoryManager.class).to(     JPACategoryManagerImpl.class);
+        binder.bind(TagManager.class).to(          JPATagManagerImpl.class);
+        binder.bind(HitCountManager.class).to(     JPAHitCountManagerImpl.class);
+
         binder.bind(URLStrategy.class).to(         MultiWeblogURLStrategy.class);
         binder.bind(PlanetURLStrategy.class).to(   MultiPlanetURLStrategy.class);
 		binder.bind(Planet.class).to(              JPAPlanetImpl.class);

@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.roller.weblogger.WebloggerException;
+import org.apache.roller.weblogger.business.Weblogger;
 import org.apache.roller.weblogger.business.WebloggerFactory;
 import org.apache.roller.weblogger.business.UserManager;
 import org.apache.roller.weblogger.config.AuthMethod;
@@ -201,7 +202,8 @@ public class Register extends UIAction implements ServletRequestAware {
                 // If user set both password and passwordConfirm then reset password
                 if (!StringUtils.isEmpty(getBean().getPasswordText()) &&
                         !StringUtils.isEmpty(getBean().getPasswordConfirm())) {
-                    ud.resetPassword(getBean().getPasswordText());
+                    Weblogger roller = WebloggerFactory.getWeblogger();
+                    roller.getUserManager().resetPassword(ud,getBean().getPasswordText());
                 }
 
                 // are we using email activation?

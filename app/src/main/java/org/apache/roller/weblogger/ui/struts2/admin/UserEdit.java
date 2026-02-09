@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.roller.weblogger.WebloggerException;
+import org.apache.roller.weblogger.business.Weblogger;
 import org.apache.roller.weblogger.business.WebloggerFactory;
 import org.apache.roller.weblogger.business.UserManager;
 import org.apache.roller.weblogger.config.AuthMethod;
@@ -160,12 +161,14 @@ public class UserEdit extends UIAction {
             if (authMethod.equals(AuthMethod.OPENID) ||
                     (authMethod.equals(AuthMethod.DB_OPENID) && !StringUtils.isEmpty(bean.getOpenIdUrl()))) {
                 String randomString = RandomStringUtils.randomAlphanumeric(255);
-                user.resetPassword(randomString);
+                Weblogger roller = WebloggerFactory.getWeblogger();
+                roller.getUserManager().resetPassword(user,randomString);
             }
 
             // reset password if set
             if (!StringUtils.isEmpty(getBean().getPassword())) {
-                user.resetPassword(getBean().getPassword());
+                Weblogger roller = WebloggerFactory.getWeblogger();
+                roller.getUserManager().resetPassword(user,getBean().getPassword());
 
                 // invalidate user's session if it's not user executing this action
                 if (!getAuthenticatedUser().getUserName().equals(user.getUserName())) {

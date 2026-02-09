@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.roller.weblogger.WebloggerException;
 import org.apache.roller.weblogger.business.UserManager;
+import org.apache.roller.weblogger.business.Weblogger;
 import org.apache.roller.weblogger.business.WebloggerFactory;
 import org.apache.roller.weblogger.config.AuthMethod;
 import org.apache.roller.weblogger.config.WebloggerConfig;
@@ -108,13 +109,15 @@ public class Profile extends UIAction {
             if (authMethod.equals(AuthMethod.OPENID) ||
                     (authMethod.equals(AuthMethod.DB_OPENID) && !StringUtils.isEmpty(bean.getOpenIdUrl()))) {
                 String randomString = RandomStringUtils.randomAlphanumeric(255);
-                existingUser.resetPassword(randomString);
+                Weblogger roller = WebloggerFactory.getWeblogger();
+                roller.getUserManager().resetPassword(existingUser,randomString);
             }
 
             // If user set both password and passwordConfirm then reset password
             if (!StringUtils.isEmpty(getBean().getPasswordText()) &&
                     !StringUtils.isEmpty(getBean().getPasswordConfirm())) {
-                existingUser.resetPassword(getBean().getPasswordText());
+                Weblogger roller = WebloggerFactory.getWeblogger();
+                roller.getUserManager().resetPassword(existingUser, getBean().getPasswordText());
             }
 
             try {

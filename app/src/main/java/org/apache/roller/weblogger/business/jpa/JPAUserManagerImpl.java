@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import org.apache.roller.weblogger.business.WebloggerFactory;
 import org.apache.roller.weblogger.config.WebloggerConfig;
 import org.apache.roller.weblogger.pojos.GlobalPermission;
 import org.apache.roller.weblogger.pojos.RollerPermission;
@@ -41,6 +42,8 @@ import org.apache.roller.weblogger.pojos.User;
 import org.apache.roller.weblogger.pojos.UserRole;
 import org.apache.roller.weblogger.pojos.Weblog;
 import org.apache.roller.weblogger.pojos.WeblogPermission;
+import org.apache.roller.weblogger.ui.core.RollerContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @com.google.inject.Singleton
@@ -626,5 +629,28 @@ public class JPAUserManagerImpl implements UserManager {
         } catch (NoResultException e) {
             throw new WebloggerException("ERROR: removing role", e);
         }
+    }
+
+    public boolean hasGlobalPermission(User user, String action) {
+        return hasGlobalPermissions(user, Collections.singletonList(action));
+    }
+
+    public boolean hasGlobalPermissions(User user, List<String> actions) {
+        try {
+            GlobalPermission perm = new GlobalPermission(actions);
+            return WebloggerFactory.getWeblogger().getUserManager().checkPermission(perm, user);
+        } catch (WebloggerException ex) {
+            return false;
+        }
+    }
+
+    /**
+     * Reset this user's password, handles encryption if configured.
+     *
+     * @param newPassword The new password to be set.
+     */
+    public void resetPassword(User user, String newPassword) {
+        PasswordEncoder encoder = RollerContext.getPasswordEncoder();
+        user.setPassword(encoder.encode(newPassword));
     }
 }

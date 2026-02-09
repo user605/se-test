@@ -19,17 +19,11 @@
 package org.apache.roller.weblogger.pojos;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.roller.weblogger.WebloggerException;
 import org.apache.roller.util.UUIDGenerator;
-import org.apache.roller.weblogger.business.WebloggerFactory;
-import org.apache.roller.weblogger.ui.core.RollerContext;
 import org.apache.roller.weblogger.util.HTMLSanitizer;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 /**
@@ -109,16 +103,6 @@ public class User implements Serializable {
      */
     public void setPassword( String password ) {
         this.password = password;
-    }
-    
-    /**
-     * Reset this user's password, handles encryption if configured.
-     *
-     * @param newPassword The new password to be set.
-     */
-    public void resetPassword(String newPassword) {
-        PasswordEncoder encoder = RollerContext.getPasswordEncoder();
-        setPassword(encoder.encode(newPassword));
     }
 
     /**
@@ -228,18 +212,7 @@ public class User implements Serializable {
     }
     
      
-    public boolean hasGlobalPermission(String action) {
-        return hasGlobalPermissions(Collections.singletonList(action));
-    }
-    
-    public boolean hasGlobalPermissions(List<String> actions) {
-        try {
-            GlobalPermission perm = new GlobalPermission(actions);
-            return WebloggerFactory.getWeblogger().getUserManager().checkPermission(perm, this);
-        } catch (WebloggerException ex) {
-            return false;
-        }
-    }
+
 
     //------------------------------------------------------- Good citizenship
     

@@ -62,11 +62,15 @@ public class JPAWebloggerImpl extends WebloggerImpl {
         WeblogManager        weblogManager,
         WeblogEntryManager   weblogEntryManager,
         OAuthManager         oauthManager,
-		FeedFetcher          feedFetcher,
+        FeedFetcher          feedFetcher,
         PlanetManager        planetManager,
         PlanetURLStrategy    planetUrlStrategy,
-        URLStrategy          urlStrategy) throws WebloggerException {
-        
+        URLStrategy          urlStrategy,
+        CommentManager       commentManager,
+        CategoryManager      categoryManager,
+        TagManager           tagManager,
+        HitCountManager      hitCountManager) throws WebloggerException {
+
         super(
             autoPingManager,
             bookmarkManager,
@@ -86,8 +90,12 @@ public class JPAWebloggerImpl extends WebloggerImpl {
             feedFetcher,
             planetManager,
             planetUrlStrategy,
-            urlStrategy);
-        
+            urlStrategy,
+            commentManager,
+            categoryManager,
+            tagManager,
+            hitCountManager);
+
         this.strategy = strategy;
     }
     
