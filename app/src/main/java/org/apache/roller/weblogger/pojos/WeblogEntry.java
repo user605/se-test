@@ -893,130 +893,48 @@ public class WeblogEntry implements Serializable {
 
     /**
      * Get entry text, transformed by plugins enabled for entry.
+     * @deprecated Use WeblogEntryTransformer.getTransformedText(entry)
      */
+    @Deprecated
     public String getTransformedText() {
-        return render(getText());
+        return org.apache.roller.weblogger.util.WeblogEntryTransformer.getTransformedText(this);
     }
 
     /**
      * Get entry summary, transformed by plugins enabled for entry.
+     * @deprecated Use WeblogEntryTransformer.getTransformedSummary(entry)
      */
+    @Deprecated
     public String getTransformedSummary() {
-        return render(getSummary());
+        return org.apache.roller.weblogger.util.WeblogEntryTransformer.getTransformedSummary(this);
     }
 
-    /**
-     * Determine if the specified user has permissions to edit this entry.
-     */
-    public boolean hasWritePermissions(User user) throws WebloggerException {
-        
-        // global admins can hack whatever they want
-        GlobalPermission adminPerm = 
-            new GlobalPermission(Collections.singletonList(GlobalPermission.ADMIN));
-        boolean hasAdmin = WebloggerFactory.getWeblogger().getUserManager()
-            .checkPermission(adminPerm, user); 
-        if (hasAdmin) {
-            return true;
-        }
-        
-        WeblogPermission perm;
-        try {
-            // if user is an author then post status defaults to PUBLISHED, otherwise PENDING
-            UserManager umgr = WebloggerFactory.getWeblogger().getUserManager();
-            perm = umgr.getWeblogPermission(getWebsite(), user);
-            
-        } catch (WebloggerException ex) {
-            // security interceptor should ensure this never happens
-            mLogger.error("ERROR retrieving user's permission", ex);
-            return false;
-        }
-
-        boolean author = perm.hasAction(WeblogPermission.POST) || perm.hasAction(WeblogPermission.ADMIN);
-        boolean limited = !author && perm.hasAction(WeblogPermission.EDIT_DRAFT);
-        
-        return author || (limited && (status == PubStatus.DRAFT || status == PubStatus.PENDING));
-    }
-    
-    /**
-     * Transform string based on plugins enabled for this weblog entry.
-     */
-    private String render(String str) {
-        String ret = str;
-        mLogger.debug("Applying page plugins to string");
-        Map<String, WeblogEntryPlugin> inPlugins = getWebsite().getInitializedPlugins();
-        if (str != null && inPlugins != null) {
-            List<String> entryPlugins = getPluginsList();
-            
-            // if no Entry plugins, don't bother looping.
-            if (entryPlugins != null && !entryPlugins.isEmpty()) {
-                
-                // now loop over mPagePlugins, matching
-                // against Entry plugins (by name):
-                // where a match is found render Plugin.
-                for (Map.Entry<String, WeblogEntryPlugin> entry : inPlugins.entrySet()) {
-                    if (entryPlugins.contains(entry.getKey())) {
-                        WeblogEntryPlugin pagePlugin = entry.getValue();
-                        try {
-                            ret = pagePlugin.render(this, ret);
-                        } catch (Exception e) {
-                            mLogger.error("ERROR from plugin: " + pagePlugin.getName(), e);
-                        }
-                    }
-                }
-            }
-        } 
-        return HTMLSanitizer.conditionallySanitize(ret);
-    }
-    
-    
     /**
      * Get the right transformed display content depending on the situation.
-     *
-     * If the readMoreLink is specified then we assume the caller wants to
-     * prefer summary over content and we include a "Read More" link at the
-     * end of the summary if it exists.  Otherwise, if the readMoreLink is
-     * empty or null then we assume the caller prefers content over summary.
+     * @deprecated Use WeblogEntryTransformer.displayContent(entry, readMoreLink)
      */
+    @Deprecated
     public String displayContent(String readMoreLink) {
-        
-        String displayContent;
-        
-        if(readMoreLink == null || readMoreLink.isBlank() || "nil".equals(readMoreLink)) {
-            
-            // no readMore link means permalink, so prefer text over summary
-            if(StringUtils.isNotEmpty(this.getText())) {
-                displayContent = this.getTransformedText();
-            } else {
-                displayContent = this.getTransformedSummary();
-            }
-        } else {
-            // not a permalink, so prefer summary over text
-            // include a "read more" link if needed
-            if(StringUtils.isNotEmpty(this.getSummary())) {
-                displayContent = this.getTransformedSummary();
-                if(StringUtils.isNotEmpty(this.getText())) {
-                    // add read more
-                    List<String> args = List.of(readMoreLink);
-                    
-                    // TODO: we need a more appropriate way to get the view locale here
-                    String readMore = I18nMessages.getMessages(getWebsite().getLocaleInstance()).getString("macro.weblog.readMoreLink", args);
-                    
-                    displayContent += readMore;
-                }
-            } else {
-                displayContent = this.getTransformedText();
-            }
-        }
-        
-        return HTMLSanitizer.conditionallySanitize(displayContent);
+        return org.apache.roller.weblogger.util.WeblogEntryTransformer.displayContent(this, readMoreLink);
     }
     
     
     /**
      * Get the right transformed display content.
+     * @deprecated Use WeblogEntryTransformer.displayContent(entry, null)
      */
+    @Deprecated
     public String getDisplayContent() { 
         return displayContent(null);
+    }
+
+    /**
+     * Determine if the specified user has permissions to edit this entry.
+     * @deprecated Use UserManager.canEdit(entry, user)
+     */
+    @Deprecated
+    public boolean hasWritePermissions(User user) throws WebloggerException {
+        return WebloggerFactory.getWeblogger().getUserManager().canEdit(this, user);
     }
 
     public Boolean getRefreshAggregates() {

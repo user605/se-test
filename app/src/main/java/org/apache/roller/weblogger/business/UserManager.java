@@ -25,6 +25,7 @@ import org.apache.roller.weblogger.WebloggerException;
 import org.apache.roller.weblogger.pojos.RollerPermission;
 import org.apache.roller.weblogger.pojos.User;
 import org.apache.roller.weblogger.pojos.Weblog;
+import org.apache.roller.weblogger.pojos.WeblogEntry;
 import org.apache.roller.weblogger.pojos.WeblogPermission;
 
 /**
@@ -328,6 +329,11 @@ public interface UserManager {
     boolean hasGlobalPermissions(User user, List<String> actions);
 
     public void resetPassword(User user, String newPassword);
+
+    /**
+     * Determine if the specified user has permissions to edit this entry.
+     */
+    boolean canEdit(WeblogEntry entry, User user) throws WebloggerException;
 }
 
 
