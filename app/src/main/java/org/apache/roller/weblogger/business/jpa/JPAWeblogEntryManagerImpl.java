@@ -379,98 +379,27 @@ public class JPAWeblogEntryManagerImpl implements WeblogEntryManager {
      */
     @Override
     public List<WeblogEntry> getWeblogEntries(WeblogEntrySearchCriteria wesc) throws WebloggerException {
-
+        // Resolve category if specified
         WeblogCategory cat = null;
         if (StringUtils.isNotEmpty(wesc.getCatName()) && wesc.getWeblog() != null) {
             cat = getWeblogCategoryByName(wesc.getWeblog(), wesc.getCatName());
         }
-
-        List<Object> params = new ArrayList<>();
-        int size = 0;
-        StringBuilder queryString = new StringBuilder();
         
-        if (wesc.getTags() == null || wesc.getTags().isEmpty()) {
-            queryString.append("SELECT e FROM WeblogEntry e WHERE ");
-        } else {
-            queryString.append("SELECT e FROM WeblogEntry e JOIN e.tags t WHERE ");
-            queryString.append("(");
-            for (int i = 0; i < wesc.getTags().size(); i++) {
-                if (i != 0) {
-                    queryString.append(" OR ");
-                }
-                params.add(size++, wesc.getTags().get(i));
-                queryString.append(" t.name = ?").append(size);                
-            }
-            queryString.append(") AND ");
+        // Build query using extracted builder
+        WeblogEntryQueryBuilder builder = WeblogEntryQueryBuilder.forCriteria(wesc)
+            .withCategory(cat);
+        
+        TypedQuery<WeblogEntry> query = strategy.getDynamicQuery(
+            builder.buildQuery(), 
+            WeblogEntry.class
+        );
+        
+        List<Object> params = builder.getParameters();
+        for (int i = 0; i < params.size(); i++) {
+            query.setParameter(i + 1, params.get(i));
         }
         
-        if (wesc.getWeblog() != null) {
-            params.add(size++, wesc.getWeblog().getId());
-            queryString.append("e.website.id = ?").append(size);
-        } else {
-            params.add(size++, Boolean.TRUE);
-            queryString.append("e.website.visible = ?").append(size);
-        }
-        
-        if (wesc.getUser() != null) {
-            params.add(size++, wesc.getUser().getUserName());
-            queryString.append(" AND e.creatorUserName = ?").append(size);
-        }
-        
-        if (wesc.getStartDate() != null) {
-            Timestamp start = new Timestamp(wesc.getStartDate().getTime());
-            params.add(size++, start);
-            queryString.append(" AND e.pubTime >= ?").append(size);
-        }
-        
-        if (wesc.getEndDate() != null) {
-            Timestamp end = new Timestamp(wesc.getEndDate().getTime());
-            params.add(size++, end);
-            queryString.append(" AND e.pubTime <= ?").append(size);
-        }
-        
-        if (cat != null) {
-            params.add(size++, cat.getId());
-            queryString.append(" AND e.category.id = ?").append(size);
-        }
-                
-        if (wesc.getStatus() != null) {
-            params.add(size++, wesc.getStatus());
-            queryString.append(" AND e.status = ?").append(size);
-        }
-        
-        if (wesc.getLocale() != null) {
-            params.add(size++, wesc.getLocale() + '%');
-            queryString.append(" AND e.locale like ?").append(size);
-        }
-        
-        if (StringUtils.isNotEmpty(wesc.getText())) {
-            params.add(size++, '%' + wesc.getText() + '%');
-            queryString.append(" AND ( e.text LIKE ?").append(size);
-            queryString.append("    OR e.summary LIKE ?").append(size);
-            queryString.append("    OR e.title LIKE ?").append(size);
-            queryString.append(") ");
-        }
-
-        if (wesc.getSortBy() != null && wesc.getSortBy().equals(WeblogEntrySearchCriteria.SortBy.UPDATE_TIME)) {
-            queryString.append(" ORDER BY e.updateTime ");
-        } else {
-            queryString.append(" ORDER BY e.pubTime ");
-        }
-        
-        if (wesc.getSortOrder() != null && wesc.getSortOrder().equals(WeblogEntrySearchCriteria.SortOrder.ASCENDING)) {
-            queryString.append("ASC ");
-        } else {
-            queryString.append("DESC ");
-        }
-        
-        
-        TypedQuery<WeblogEntry> query = strategy.getDynamicQuery(queryString.toString(), WeblogEntry.class);
-        for (int i=0; i<params.size(); i++) {
-            query.setParameter(i+1, params.get(i));
-        }
-        
-        setFirstMax( query, wesc.getOffset(), wesc.getMaxResults() );
+        setFirstMax(query, wesc.getOffset(), wesc.getMaxResults());
         return query.getResultList();
     }
     
