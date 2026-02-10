@@ -18,24 +18,41 @@
 /* Created on Aug 12, 2003 */
 package org.apache.roller.weblogger.business.search.lucene;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.miscellaneous.LimitTokenCountAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.util.BytesRef;
+import org.apache.roller.weblogger.config.WebloggerConfig;
+import org.apache.roller.weblogger.pojos.WeblogCategory;
+import org.apache.roller.weblogger.pojos.WeblogEntry;
+import org.apache.roller.weblogger.pojos.WeblogEntryComment;
 
 /**
  * An operation that writes to index.
  * @author Mindaugas Idzelis (min@idzelis.com)
  */
 public abstract class WriteToIndexOperation extends IndexOperation {
-    
+
+    private static Log logger =
+            LogFactory.getFactory().getInstance(WriteToIndexOperation.class);
+
+    private IndexWriter writer;
+
     public WriteToIndexOperation(LuceneIndexManager mgr) {
         super(mgr);
     }
-    
-    private static Log logger =
-            LogFactory.getFactory().getInstance(WriteToIndexOperation.class);
-    
+
     @Override
-    public void run() {
+    public final void run() {
         try {
             manager.getReadWriteLock().writeLock().lock();
             logger.debug("Starting search index operation");
@@ -44,10 +61,143 @@ public abstract class WriteToIndexOperation extends IndexOperation {
 
         } catch (Exception e) {
             logger.error("Error acquiring write lock on index", e);
-            
+
         } finally {
             manager.getReadWriteLock().writeLock().unlock();
         }
         manager.resetSharedReader();
+    }
+
+    protected Document getDocument(WeblogEntry data) {
+
+        // Actual comment content is indexed only if search.index.comments
+        // is true or absent from the (static) configuration properties.
+        // If false in the configuration, comments are treated as if empty.
+        boolean indexComments = WebloggerConfig.getBooleanProperty(
+                "search.index.comments", true);
+
+        String commentContent = "";
+        String commentEmail = "";
+        String commentName = "";
+        if (indexComments) {
+            List<WeblogEntryComment> comments = data.getComments();
+            if (comments != null) {
+                StringBuilder commentEmailBld = new StringBuilder();
+                StringBuilder commentContentBld = new StringBuilder();
+                StringBuilder commentNameBld = new StringBuilder();
+                for (WeblogEntryComment comment : comments) {
+                    if (comment.getContent() != null) {
+                        commentContentBld.append(comment.getContent());
+                        commentContentBld.append(",");
+                    }
+                    if (comment.getEmail() != null) {
+                        commentEmailBld.append(comment.getEmail());
+                        commentEmailBld.append(",");
+                    }
+                    if (comment.getName() != null) {
+                        commentNameBld.append(comment.getName());
+                        commentNameBld.append(",");
+                    }
+                }
+                commentEmail = commentEmailBld.toString();
+                commentContent = commentContentBld.toString();
+                commentName = commentNameBld.toString();
+            }
+        }
+
+        Document doc = new Document();
+
+        // keyword
+        doc.add(new StringField(FieldConstants.ID, data.getId(),
+                Field.Store.YES));
+
+        // keyword
+        doc.add(new StringField(FieldConstants.WEBSITE_HANDLE, data
+                .getWebsite().getHandle(), Field.Store.YES));
+
+        // text, don't index deleted/disabled users of a group blog
+        if (data.getCreator() != null) {
+            doc.add(new TextField(FieldConstants.USERNAME, data.getCreator()
+                    .getUserName().toLowerCase(), Field.Store.YES));
+        }
+
+        // text
+        doc.add(new TextField(FieldConstants.TITLE, data.getTitle(),
+                Field.Store.YES));
+
+        // keyword needs to be in lower case as we are used in a term
+        doc.add(new StringField(FieldConstants.LOCALE, data.getLocale()
+                .toLowerCase(), Field.Store.YES));
+
+        // index the entry text, but don't store it
+        doc.add(new TextField(FieldConstants.CONTENT, data.getText(),
+                Field.Store.NO));
+
+        // keyword
+        doc.add(new StringField(FieldConstants.UPDATED, data.getUpdateTime()
+                .toString(), Field.Store.YES));
+
+        // keyword
+        if (data.getPubTime() != null) {
+            // SearchOperation sorts results by date
+            doc.add(new SortedDocValuesField(FieldConstants.PUBLISHED, new BytesRef(data.getPubTime().toString())));
+        }
+
+        // index Category, needs to be in lower case as it is used in a term
+        WeblogCategory categorydata = data.getCategory();
+        if (categorydata != null) {
+            doc.add(new StringField(FieldConstants.CATEGORY, categorydata
+                    .getName().toLowerCase(), Field.Store.YES));
+        }
+
+        // index Comments, unstored
+        doc.add(new TextField(FieldConstants.C_CONTENT, commentContent,
+                Field.Store.NO));
+
+        // keyword
+        doc.add(new StringField(FieldConstants.C_EMAIL, commentEmail,
+                Field.Store.YES));
+
+        // keyword
+        doc.add(new StringField(FieldConstants.C_NAME, commentName,
+                Field.Store.YES));
+
+        return doc;
+    }
+
+    /**
+     * Begin writing.
+     *
+     * @return the index writer
+     */
+    protected IndexWriter beginWriting() {
+        try {
+
+            LimitTokenCountAnalyzer analyzer = new LimitTokenCountAnalyzer(
+                    LuceneIndexManager.getAnalyzer(),
+                    WebloggerConfig.getIntProperty("lucene.analyzer.maxTokenCount"));
+
+            IndexWriterConfig config = new IndexWriterConfig(analyzer);
+
+            writer = new IndexWriter(manager.getIndexDirectory(), config);
+
+        } catch (IOException e) {
+            logger.error("ERROR creating writer", e);
+        }
+
+        return writer;
+    }
+
+    /**
+     * End writing.
+     */
+    protected void endWriting() {
+        if (writer != null) {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                logger.error("ERROR closing writer", e);
+            }
+        }
     }
 }
