@@ -1,0 +1,67 @@
+name: Automated Refactoring Pipeline
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      scan_path:
+        description: 'Subdirectory to scan (relative to repo root)'
+        default: 'app/src/main/java/org/apache/roller/weblogger/business'
+        type: string
+      max_files:
+        description: 'Max files to analyze'
+        default: '10'
+        type: string
+      max_suggestions:
+        description: 'Max refactoring suggestions'
+        default: '3'
+        type: string
+      dry_run:
+        description: 'Dry run (no PR creation)'
+        default: true
+        type: boolean
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd refactoring_pipeline
+          pip install -r requirements.txt
+
+      - name: Run Refactoring Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          cd refactoring_pipeline
+          python main.py \
+            --repo-path .. \
+            --scan-path "${{ github.event.inputs.scan_path }}" \
+            --max-files ${{ github.event.inputs.max_files || '10' }} \
+            --max-suggestions ${{ github.event.inputs.max_suggestions || '3' }} \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }} \
+            -v
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: refactoring-report
+          path: refactoring-suggestions/
