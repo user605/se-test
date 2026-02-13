@@ -1,0 +1,177 @@
+{
+  "module_name": "Search and Indexing Subsystem",
+  "files_scanned": 25,
+  "total_lines": 3567,
+  "smells": [
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/IndexManager.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'initialize' references 14 external class symbols. It may belong in another class.",
+      "line_start": 36,
+      "line_end": 77,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/IndexOperation.java",
+      "smell_type": "Long Method",
+      "description": "Method 'getDocument' is 96 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 69,
+      "line_end": 164,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/IndexOperation.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'getDocument' references 33 external class symbols. It may belong in another class.",
+      "line_start": 69,
+      "line_end": 164,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/IndexUtil.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'getTerm' references 9 external class symbols. It may belong in another class.",
+      "line_start": 48,
+      "line_end": 67,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/LuceneIndexManager.java",
+      "smell_type": "God Class (Excessive Size)",
+      "description": "Class has 485 lines (threshold: 300). Consider decomposing into smaller, focused classes.",
+      "line_start": 1,
+      "line_end": 485,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/LuceneIndexManager.java",
+      "smell_type": "Long Method",
+      "description": "Method 'initialize' is 56 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 124,
+      "line_end": 179,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/LuceneIndexManager.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'createIndex' references 9 external class symbols. It may belong in another class.",
+      "line_start": 370,
+      "line_end": 392,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/SearchOperation.java",
+      "smell_type": "Long Method",
+      "description": "Method 'doRun' is 54 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 98,
+      "line_end": 151,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/business/search/lucene/SearchOperation.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'doRun' references 24 external class symbols. It may belong in another class.",
+      "line_start": 98,
+      "line_end": 151,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/pojos/CommentSearchCriteria.java",
+      "smell_type": "God Class (Too Many Methods)",
+      "description": "Class exposes 18 public methods (threshold: 15). Consider applying the Single Responsibility Principle.",
+      "line_start": 1,
+      "line_end": 116,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/pojos/WeblogEntrySearchCriteria.java",
+      "smell_type": "God Class (Too Many Methods)",
+      "description": "Class exposes 26 public methods (threshold: 15). Consider applying the Single Responsibility Principle.",
+      "line_start": 1,
+      "line_end": 162,
+      "severity": "high"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/model/SearchResultsFeedModel.java",
+      "smell_type": "Long Method",
+      "description": "Method 'init' is 67 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 74,
+      "line_end": 140,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/model/SearchResultsFeedModel.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'init' references 18 external class symbols. It may belong in another class.",
+      "line_start": 74,
+      "line_end": 140,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/model/SearchResultsModel.java",
+      "smell_type": "Long Method",
+      "description": "Method 'init' is 55 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 68,
+      "line_end": 122,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/model/SearchResultsModel.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'init' references 16 external class symbols. It may belong in another class.",
+      "line_start": 68,
+      "line_end": 122,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/pagers/SearchResultsPager.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'SearchResultsPager' references 10 external class symbols. It may belong in another class.",
+      "line_start": 51,
+      "line_end": 82,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/servlets/SearchServlet.java",
+      "smell_type": "Long Method",
+      "description": "Method 'doGet' is 165 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 84,
+      "line_end": 248,
+      "severity": "high"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/rendering/servlets/SearchServlet.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'doGet' references 45 external class symbols. It may belong in another class.",
+      "line_start": 84,
+      "line_end": 248,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/struts2/editor/MediaFileSearchBean.java",
+      "smell_type": "God Class (Too Many Methods)",
+      "description": "Class exposes 20 public methods (threshold: 15). Consider applying the Single Responsibility Principle.",
+      "line_start": 1,
+      "line_end": 211,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/struts2/editor/MediaFileSearchBean.java",
+      "smell_type": "Long Method",
+      "description": "Method 'copyTo' is 68 lines (threshold: 50). Consider extracting sub-methods.",
+      "line_start": 143,
+      "line_end": 210,
+      "severity": "medium"
+    },
+    {
+      "file": "app/src/main/java/org/apache/roller/weblogger/ui/struts2/editor/MediaFileSearchBean.java",
+      "smell_type": "Feature Envy",
+      "description": "Method 'copyTo' references 22 external class symbols. It may belong in another class.",
+      "line_start": 143,
+      "line_end": 210,
+      "severity": "medium"
+    }
+  ],
+  "suggestions": [],
+  "timestamp": "2026-02-14T15:52:31.045435"
+}
