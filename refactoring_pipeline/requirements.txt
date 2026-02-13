@@ -1,0 +1,4 @@
+google-generativeai>=0.8.0
+PyGithub>=2.1.0
+javalang>=0.13.0
+python-dotenv>=1.0.0
